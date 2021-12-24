@@ -1,0 +1,61 @@
+dshs_data:
+  cases:
+    url: "https://dshs.texas.gov/coronavirus/TexasCOVID19DailyCountyCaseCountData.xlsx"
+    sheet: 1
+    skip: 2
+    fn: "cases"
+  deaths:
+    url: "https://dshs.texas.gov/coronavirus/TexasCOVID19DailyCountyFatalityCountData.xlsx"
+    sheet: 1
+    skip: 2
+    fn: "deaths"
+  testing:
+    url: "https://dshs.texas.gov/coronavirus/TexasCOVID-19CumulativeTestsbyCounty.xlsx"
+    sheet: 1
+    skip: 1
+    fn: "testing"
+  testing_legacy:
+    url: "https://dshs.texas.gov/coronavirus/TexasCOVID-19CumulativeTestsOverTimebyCounty.xlsx"
+    sheet: 1
+    skip: 1
+    fn: "testing_legacy"
+  hospitalizations:
+    url: "https://dshs.texas.gov/coronavirus/CombinedHospitalDataoverTimebyTSA.xlsx"
+    sheets:
+      inpatient_staffed:
+        sheet: 9
+        skip: 2
+      total_occupied:
+        sheet: 10
+        skip: 2
+      icu_occupied:
+        sheet: 12
+        skip: 2
+      icu_adult_staffed:
+        sheet: 13
+        skip: 2
+      icu_peds_staffed:
+        sheet: 14
+        skip: 2
+    fn: "hospitalizations"
+  vaccine_zip_today:
+    url: "https://dshs.texas.gov/coronavirus/TexasCOVID19VaccinesbyZIP.xlsx"
+    sheet: 2
+    skip: 0
+    fn: "vaccine_zip"
+  vaccine_county_today:
+    url: "https://dshs.texas.gov/immunize/covid19/COVID-19-Vaccine-Data-by-County.xls"
+    sheet: 2
+    skip: 0
+    fn: "vaccine_county"
+  vaccine_state_historical:
+    url: "https://dshs.texas.gov/immunize/covid19/COVID-19-Vaccine-Data-by-County.xls"
+    sheet: 7
+    skip: 0
+    fn: "vaccine_state"
+
+paths:
+  R: "R/"
+  data:
+    raw: "data/raw/"
+    proc: "data/proc/"
