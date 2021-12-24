@@ -4,6 +4,7 @@ dshs_data:
     sheet: 1
     skip: 2
     fn: "cases"
+    date_format: "%m-%d-%Y"
   deaths:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID19DailyCountyFatalityCountData.xlsx"
     sheet: 1
@@ -57,5 +58,8 @@ dshs_data:
 paths:
   R: "R/"
   data:
-    raw: "data/raw/"
-    proc: "data/proc/"
+    raw: 
+      path: "data/raw/"
+    proc: 
+      path: "data/proc/"
+      ext: ".csv"
