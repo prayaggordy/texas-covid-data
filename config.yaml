@@ -10,6 +10,7 @@ dshs_data:
     sheet: 1
     skip: 2
     fn: "deaths"
+    date_format: "%m-%d-%Y"
   testing:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID-19CumulativeTestsbyCounty.xlsx"
     sheet: 1
