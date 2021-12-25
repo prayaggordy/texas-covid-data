@@ -51,43 +51,5 @@ dm_outcomes <- function(outcome_type,
   df
 }
 
-dm_cases <- function(df_config = config$dshs_data$cases,
-                     update = TRUE,
-                     path_raw = config$paths$data$raw$path,
-                     path_proc = config$paths$data$proc$path,
-                     ext = config$paths$data$proc$ext) {
-  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
-  fn_proc <- paste0(path_proc, df_config$fn, ext)
-  
-  if (update | !file.exists(fn_proc)) {
-    df <- dm_outcomes(df_config, fn_raw) %>% 
-      dplyr::rename(cumulative_cases = cumulative_outcomes,
-                    new_cases = new_outcomes)
-    readr::write_csv(df, fn_proc)
-  } else {
-    df <- readr::read_csv(fn_proc)
-  }
-  
-  df
-}
 
-dm_deaths <- function(df_config = config$dshs_data$deaths,
-                     update = TRUE,
-                     path_raw = config$paths$data$raw$path,
-                     path_proc = config$paths$data$proc$path,
-                     ext = config$paths$data$proc$ext) {
-  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
-  fn_proc <- paste0(path_proc, df_config$fn, ext)
-  
-  if (update | !file.exists(fn_proc)) {
-    df <- dm_outcomes(df_config, fn_raw) %>% 
-      dplyr::rename(cumulative_deaths = cumulative_outcomes,
-                    new_deaths = new_outcomes)
-    readr::write_csv(df, fn_proc)
-  } else {
-    df <- readr::read_csv(fn_proc)
-  }
-  
-  df
-}
 
