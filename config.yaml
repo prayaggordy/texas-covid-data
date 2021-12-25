@@ -4,23 +4,30 @@ dshs_data:
     sheet: 1
     skip: 2
     fn: "cases"
+    date_prefix: "Cases"
     date_format: "%m-%d-%Y"
   deaths:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID19DailyCountyFatalityCountData.xlsx"
     sheet: 1
     skip: 2
     fn: "deaths"
+    date_prefix: "Fatalities"
     date_format: "%m-%d-%Y"
   testing:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID-19CumulativeTestsbyCounty.xlsx"
     sheet: 1
     skip: 1
     fn: "testing"
+    date_prefix: ""
+    date_format: "%Y-%m-%d"
   testing_legacy:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID-19CumulativeTestsOverTimebyCounty.xlsx"
     sheet: 1
     skip: 1
     fn: "testing_legacy"
+    date_prefix: "Tests Through"
+    date_format: "%B%d"
+    date_additional_removal: ["\\*"]
   hospitalizations:
     url: "https://dshs.texas.gov/coronavirus/CombinedHospitalDataoverTimebyTSA.xlsx"
     sheets:
