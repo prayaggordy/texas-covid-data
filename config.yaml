@@ -18,7 +18,6 @@ dshs_data:
     sheet: 1
     skip: 1
     fn: "testing"
-    date_prefix: ""
     date_format: "%Y-%m-%d"
   testing_legacy:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID-19CumulativeTestsOverTimebyCounty.xlsx"
@@ -47,6 +46,7 @@ dshs_data:
         sheet: 14
         skip: 2
     fn: "hospitalizations"
+    date_format: "%Y-%m-%d"
   vaccine_zip_today:
     url: "https://dshs.texas.gov/coronavirus/TexasCOVID19VaccinesbyZIP.xlsx"
     sheet: 2

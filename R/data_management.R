@@ -13,41 +13,43 @@ download_all_data <- function(config) {
   lapply(config$dshs_data, download_data)
 }
 
-dm_outcomes <- function(outcome_type,
-                        df_config = config$dshs_data,
-                        update = TRUE,
-                        write_to_proc = TRUE,
-                        path_raw = config$paths$data$raw$path,
-                        path_proc = config$paths$data$proc$path,
-                        ext = config$paths$data$proc$ext) {
-  
-  df_config <- df_config[[outcome_type]]
+dm_outcomes_helper <- function(df, date_prefix, extra_removal, date_format) {
+  df %>% 
+    dplyr::rename(geography = 1) %>% 
+    dplyr::mutate(dplyr::across(c(tidyselect:::where(is.character), -geography), readr::parse_number)) %>% 
+    tidyr::pivot_longer(cols = -geography,
+                        names_to = "date",
+                        values_to = "cumulative_outcomes") %>%
+    dplyr::mutate(date = stringr::str_remove(date,
+                                             paste0("[(", date_prefix, ")",
+                                                    paste0("(", extra_removal, ")", collapse = ""),
+                                                    "]*")) %>%
+                    stringr::str_trim() %>%
+                    lubridate::as_date(format = date_format),
+                  geography = tolower(geography)) %>%
+    dplyr::group_by(geography) %>%
+    dplyr::arrange(date) %>%
+    dplyr::mutate(new_outcomes = cumulative_outcomes - dplyr::lag(cumulative_outcomes)) %>%
+    dplyr::ungroup()
+}
 
-  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
-  fn_proc <- paste0(path_proc, df_config$fn, ext)
+dm_outcomes_full <- function(url = "", fn = "", sheet = 0, skip = 0, 
+                               date_prefix = "", extra_removal = "", date_format = "", 
+                               outcome_type, update, write_to_proc, 
+                               path_raw, path_proc, ext,
+                               ...) {
+  
+  fn_raw <- generate_fn_full(url, fn, path_raw)
+  fn_proc <- paste0(path_proc, fn, ext)
   
   if (update | !file.exists(fn_proc)) {
     cns <- paste(c("cumulative", "new"), "outcomes", sep = "_")
     names(cns) <- paste(c("cumulative", "new"), outcome_type, sep = "_")
     
-    df <- readxl::read_excel(path = fn_raw, sheet = df_config$sheet, skip = df_config$skip) %>% 
-      dplyr::rename(county = 1) %>% 
-      dplyr::mutate(dplyr::across(c(tidyselect:::where(is.character), -county), readr::parse_number)) %>% 
-      tidyr::pivot_longer(cols = -county,
-                          names_to = "date",
-                          values_to = "cumulative_outcomes") %>%
-      dplyr::mutate(date = stringr::str_remove(date,
-                                               paste0("[(", df_config$date_prefix, ")",
-                                                      paste0("(", df_config$extra_removal, ")", collapse = ""),
-                                                      "]*")) %>%
-                      stringr::str_trim() %>%
-                      lubridate::as_date(format = df_config$date_format),
-                    county = tolower(county)) %>%
-      dplyr::group_by(county) %>%
-      dplyr::arrange(date) %>%
-      dplyr::mutate(new_outcomes = cumulative_outcomes - dplyr::lag(cumulative_outcomes)) %>%
-      dplyr::ungroup() %>%
-      dplyr::inner_join(XWALK_COUNTY_FIPS) %>%
+    df <- readxl::read_excel(path = fn_raw, sheet = sheet, skip = skip) %>% 
+      dm_outcomes_helper(date_prefix, extra_removal, date_format) %>% 
+      dplyr::rename(county = geography) %>% 
+      dplyr::inner_join(XWALK_COUNTY_FIPS, by = "county") %>%
       dplyr::select(date, fips, cumulative_outcomes, new_outcomes) %>%
       dplyr::rename(cns)
     
@@ -59,6 +61,28 @@ dm_outcomes <- function(outcome_type,
   }
   
   df
+}
+
+dm_outcomes <- function(outcome_type,
+                        df_config = config$dshs_data,
+                        update = TRUE,
+                        write_to_proc = TRUE,
+                        path_raw = config$paths$data$raw$path,
+                        path_proc = config$paths$data$proc$path,
+                        ext = config$paths$data$proc$ext) {
+  
+  df_config <- df_config[[outcome_type]]
+  
+  all_args <- list(df_config, 
+                   outcome_type = outcome_type,
+                   update = update,
+                   write_to_proc = write_to_proc,
+                   path_raw = path_raw,
+                   path_proc = path_proc,
+                   ext = ext) %>% 
+    purrr::flatten()
+  
+  do.call(dm_outcomes_full, all_args)
 }
 
 dm_testing <- function(df_config = config$dshs_data$testing,
@@ -82,6 +106,41 @@ dm_testing <- function(df_config = config$dshs_data$testing,
       dplyr::group_by(fips) %>% 
       dplyr::arrange(date) %>% 
       dplyr::ungroup()
+    
+    readr::write_csv(df, fn_proc)
+  } else {
+    df <- readr::read_csv(fn_proc)
+  }
+  
+  df
+}
+
+dm_hospitalizations <- function(df_config = config$dshs_data$hospitalizations,
+                                update = TRUE,
+                                path_raw = config$paths$data$raw$path,
+                                path_proc = config$paths$data$proc$path,
+                                ext = config$paths$data$proc$ext) {
+  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
+  fn_proc <- paste0(path_proc, df_config$fn, ext)
+  
+  if (update | !file.exists(fn_proc)) {
+    df <- lapply(names(df_config$sheets),
+                 function(x) {
+                   cns <- paste(c("cumulative", "new"), "outcomes", sep = "_")
+                   names(cns) <- paste(c("cumulative", "new"), x, sep = "_")
+                   
+                   readxl::read_excel(path = fn_raw, 
+                                      sheet = df_config$sheets[[x]]$sheet, 
+                                      skip = df_config$sheets[[x]]$skip) %>% 
+                     dm_outcomes_helper(date_prefix = df_config$date_prefix, 
+                                        extra_removal = df_config$extra_removal, 
+                                        date_format = df_config$date_format) %>% 
+                     dplyr::rename(TSA = geography, cns) %>% 
+                     dplyr::mutate(TSA = stringr::str_remove(TSA, "[^[A-z]]") %>% 
+                                     toupper()) %>% 
+                     dplyr::inner_join(LU_TSA %>% dplyr::select(TSA), by = "TSA")
+                 }) %>% 
+      purrr::reduce(dplyr::inner_join, by = c("TSA", "date"))
     
     readr::write_csv(df, fn_proc)
   } else {
