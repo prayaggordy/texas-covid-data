@@ -120,6 +120,7 @@ dm_hospitalizations <- function(df_config = config$dshs_data$hospitalizations,
                                 path_raw = config$paths$data$raw$path,
                                 path_proc = config$paths$data$proc$path,
                                 ext = config$paths$data$proc$ext) {
+  
   fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
   fn_proc <- paste0(path_proc, df_config$fn, ext)
   
@@ -141,6 +142,29 @@ dm_hospitalizations <- function(df_config = config$dshs_data$hospitalizations,
                      dplyr::inner_join(LU_TSA %>% dplyr::select(TSA), by = "TSA")
                  }) %>% 
       purrr::reduce(dplyr::inner_join, by = c("TSA", "date"))
+    
+    readr::write_csv(df, fn_proc)
+  } else {
+    df <- readr::read_csv(fn_proc)
+  }
+  
+  df
+}
+
+dm_vaccine_zip <- function(df_config = config$dshs_data$vaccine_zip_today,
+                           update = TRUE,
+                           path_raw = config$paths$data$raw$path,
+                           path_proc = config$paths$data$proc$path,
+                           ext = config$paths$data$proc$ext) {
+  
+  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
+  fn_proc <- paste0(path_proc, df_config$fn, ext)
+  
+  if (update | !file.exists(fn_proc)) {
+    df <- readxl::read_excel(path = fn_raw, sheet = df_config$sheet, skip = df_config$skip) %>% 
+      dplyr::rename(df_config$cns %>% unlist()) %>% 
+      dplyr::filter(stringr::str_detect(zip, "^[:digit:]+$")) %>%
+      dplyr::mutate(dplyr::across(-zip, as.numeric))
     
     readr::write_csv(df, fn_proc)
   } else {

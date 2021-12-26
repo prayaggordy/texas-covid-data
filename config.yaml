@@ -52,6 +52,11 @@ dshs_data:
     sheet: 2
     skip: 0
     fn: "vaccine_zip"
+    cns: 
+      - zip: "Recipient Zip Code"
+      - doses: "Vaccine Doses Administered"
+      - partially_vax: "People Vaccinated with at least One Dose"
+      - fully_vax: "People Fully Vaccinated"
   vaccine_county_today:
     url: "https://dshs.texas.gov/immunize/covid19/COVID-19-Vaccine-Data-by-County.xls"
     sheet: 2

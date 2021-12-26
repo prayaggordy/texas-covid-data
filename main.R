@@ -12,3 +12,5 @@ CASES <- dm_outcomes("cases")
 DEATHS <- dm_outcomes("deaths")
 TESTS <- dm_testing()
 HOSPITALIZATIONS <- dm_hospitalizations()
+
+VACCINE_ZIP <- dm_vaccine_zip()
