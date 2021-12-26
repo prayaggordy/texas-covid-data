@@ -141,7 +141,7 @@ dm_hospitalizations <- function(df_config = config$dshs_data$hospitalizations,
                                      toupper()) %>% 
                      dplyr::inner_join(LU_TSA %>% dplyr::select(TSA), by = "TSA")
                  }) %>% 
-      purrr::reduce(dplyr::inner_join, by = c("TSA", "date"))
+      purrr::reduce(dplyr::inner_join, by = c("date", "TSA"))
     
     readr::write_csv(df, fn_proc)
   } else {
@@ -165,6 +165,52 @@ dm_vaccine_zip <- function(df_config = config$dshs_data$vaccine_zip_today,
       dplyr::rename(df_config$cns %>% unlist()) %>% 
       dplyr::filter(stringr::str_detect(zip, "^[:digit:]+$")) %>%
       dplyr::mutate(dplyr::across(-zip, as.numeric))
+    
+    readr::write_csv(df, fn_proc)
+  } else {
+    df <- readr::read_csv(fn_proc)
+  }
+  
+  df
+}
+
+dm_vaccine_county <- function(df_config = config$dshs_data$vaccine_county_today,
+                              update = TRUE,
+                              path_raw = config$paths$data$raw$path,
+                              path_proc = config$paths$data$proc$path,
+                              ext = config$paths$data$proc$ext) {
+  
+  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
+  fn_proc <- paste0(path_proc, df_config$fn, ext)
+  
+  if (update | !file.exists(fn_proc)) {
+    df <- readxl::read_excel(path = fn_raw, sheet = df_config$sheet, skip = df_config$skip) %>% 
+      dplyr::rename(df_config$cns %>% unlist()) %>% 
+      dplyr::mutate(county = tolower(county)) %>% 
+      dplyr::inner_join(XWALK_COUNTY_FIPS, by = "county") %>% 
+      dplyr::select(fips, tidyselect::all_of(names(df_config$cns)), -county)
+    
+    readr::write_csv(df, fn_proc)
+  } else {
+    df <- readr::read_csv(fn_proc)
+  }
+  
+  df
+}
+
+dm_vaccine_state <- function(df_config = config$dshs_data$vaccine_state_historical,
+                              update = TRUE,
+                              path_raw = config$paths$data$raw$path,
+                              path_proc = config$paths$data$proc$path,
+                              ext = config$paths$data$proc$ext) {
+  
+  fn_raw <- generate_fn_full(df_config$url, df_config$fn, path_raw)
+  fn_proc <- paste0(path_proc, df_config$fn, ext)
+  
+  if (update | !file.exists(fn_proc)) {
+    df <- readxl::read_excel(path = fn_raw, sheet = df_config$sheet, skip = df_config$skip) %>% 
+      dplyr::rename(df_config$cns %>% unlist()) %>% 
+      dplyr::mutate(date = lubridate::as_date(date, format = "%m/%d/%y"))
     
     readr::write_csv(df, fn_proc)
   } else {

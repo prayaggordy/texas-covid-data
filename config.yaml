@@ -62,11 +62,23 @@ dshs_data:
     sheet: 2
     skip: 0
     fn: "vaccine_county"
+    cns:
+      - county: "County Name"
+      - total_doses: "Vaccine Doses Administered"
+      - partially_vax: "People Vaccinated with at least One Dose"
+      - fully_vax: "People Fully Vaccinated"
+      - booster: "People Vaccinated with Booster Dose"
   vaccine_state_historical:
     url: "https://dshs.texas.gov/immunize/covid19/COVID-19-Vaccine-Data-by-County.xls"
     sheet: 7
     skip: 0
     fn: "vaccine_state"
+    cns:
+      - date: "Vaccination Date"
+      - total_doses: "Doses Administered"
+      - partially_vax: "People Vaccinated with at least One Dose"
+      - fully_vax: "People Fully Vaccinated "
+      - booster: "People with a Booster Dose"
 
 paths:
   R: "R/"
@@ -76,3 +88,6 @@ paths:
     proc: 
       path: "data/proc/"
       ext: ".csv"
+
+standard_values:
+  first_date: "2020-03-04"
