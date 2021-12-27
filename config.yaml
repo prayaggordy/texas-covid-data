@@ -75,10 +75,10 @@ dshs_data:
     fn: "vaccine_state"
     cns:
       - date: "Vaccination Date"
-      - total_doses: "Doses Administered"
-      - partially_vax: "People Vaccinated with at least One Dose"
-      - fully_vax: "People Fully Vaccinated "
-      - booster: "People with a Booster Dose"
+      - new_total_doses: "Doses Administered"
+      - new_partially_vax: "People Vaccinated with at least One Dose"
+      - new_fully_vax: "People Fully Vaccinated"
+      - new_boosters: "People with a Booster Dose"
 
 paths:
   R: "R/"
@@ -91,3 +91,8 @@ paths:
 
 standard_values:
   first_date: "2020-03-04"
+  first_booster_date: "2021-08-13"
+  excel_origin: "1899-12-30"
+
+bash_scripts:
+  convert_to_xlsx: "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to xlsx {fn_raw} --outdir data/raw"

@@ -14,3 +14,5 @@ TESTS <- dm_testing()
 HOSPITALIZATIONS <- dm_hospitalizations()
 
 VACCINE_ZIP <- dm_vaccine_zip()
+VACCINE_COUNTY <- dm_vaccine_county()
+VACCINE_STATE_HISTORICAL <- dm_vaccine_state()
